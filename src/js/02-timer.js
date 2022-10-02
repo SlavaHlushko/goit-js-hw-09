@@ -6,7 +6,7 @@ import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 
 const timerRef = document.querySelector('.timer');
-const TIMER_DEADLINE = new Date(2022, 9, 01, 22, 25);
+const TIMER_DEADLINE = new Date();
 
 const timer = {
     intervalId: null,
