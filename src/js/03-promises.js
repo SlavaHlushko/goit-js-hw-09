@@ -1,38 +1,51 @@
 'use strict';
 
-import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import Notiflix from 'notiflix';
+import 'notiflix/dist/notiflix-3.2.5.min.css';
 
+let delay = document.querySelector('[name="delay"]');
+let step = document.querySelector('[name="step"]');
+let amount = document.querySelector('[name="amount"]');
+const submitBtn = document.querySelector('button');
 
-const labelFirstDelay = document.querySelector('[name="delay"]');
-const labelStepDelay = document.querySelector('[name="step"]');
-const labelAmount = document.querySelector('[name="amount"]');
-const btn = document.querySelector('button');
+submitBtn.addEventListener('click', dataForPromice);
+
+function dataForPromice(event) {
+  event.preventDefault();
+  let firstDelay = Number(delay.value);
+  let delayStep = Number(step.value);
+
+  if (firstDelay < 0 || delayStep < 0 || amount.value < 0) {
+    Notiflix.Report.warning(
+      'Negative value(s) detected!',
+      'Only positive value can be entered in the field',
+      'Ok, I understand'
+    );
+  } else {
+    for (let i = 0; i < amount.value; i++) {
+      let nextTime = firstDelay + i * delayStep;
+      createPromise(1 + i, nextTime)
+        .then(({ position, delay }) => {
+          Notiflix.Notify.success(
+            `Fulfilled promise ${position} in ${delay}ms`
+          );
+        })
+        .catch(({ position, delay }) => {
+          Notiflix.Notify.failure(`Rejected promise ${position} in ${delay}ms`);
+        });
+    }
+  }
+}
 
 function createPromise(position, delay) {
   return new Promise((resolve, reject) => {
     const shouldResolve = Math.random() > 0.3;
-    setInterval(() => {
+    setTimeout(() => {
       if (shouldResolve) {
-        resolve({position, delay});
+        resolve({ position, delay });
+      } else {
+        reject({ position, delay });
       }
-      reject({position, delay});
-    }, delay); 
+    }, delay);
   });
 }
-
-btn.addEventListener("click", (event) => {
-  let positionNumber = 0;
-  for (let i = 0; i <= Number(labelAmount.value); i += 1) {
-    positionNumber += 1;
-    const delayStep = Number(labelStepDelay.value) + Number(labelFirstDelay.value);
-  };
-
-
-  createPromise(2, 1500)
-  .then(({ position, delay }) => {
-    Notify.success(`✅ Fulfilled promise ${position} in ${delay}ms`);
-  })
-  .catch(({ position, delay }) => {
-    Notify.failure(`❌ Rejected promise ${position} in ${delay}ms`);
-  });
-})
